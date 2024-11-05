@@ -70,4 +70,3 @@ if __name__ == "__main__":
     DATABASE.insert_request_records(request_records)
     end = datetime.datetime.now()
     LOGGER.info("Exiting, everything took %s seconds." % (end - start))
-

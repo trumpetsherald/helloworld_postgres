@@ -1,4 +1,3 @@
-import csv
 import random
 import datetime
 import numpy as np
@@ -6,10 +5,10 @@ import pandas as pd
 
 def generate_nginx_log_data(
         day=None,
-        avg_rate=2,
+        avg_rate=10,
         time_min=1,
         time_max=1000,
-        time_avg=800,
+        time_avg=300,
         status_dist={"200": .95,"201": .01,"404": .03,"500": .01},
         method_dist={"GET": 0.1, "POST": 0.9},
         response_size_min=1000,
@@ -22,19 +21,35 @@ def generate_nginx_log_data(
     if day is None:
         day = datetime.datetime.now().replace(hour=0, minute=0, second=0,
                                               microsecond=0)
-
-    # Calculate the total number of seconds in a day
-    seconds_in_day = 24 * 60 * 60
-
-    # Calculate the approximate number of requests for the day
-    total_requests = avg_rate * seconds_in_day
-
-    # Generate request times spread throughout the day
-    request_times = [
-        day + datetime.timedelta(seconds=int(second))
-        for second in np.random.randint(0, seconds_in_day, total_requests)
+        # Define diurnal pattern: an array of multipliers for each hour
+        # Peak traffic at 12 PM (noon) and 6 PM, low traffic at 3 AM
+    hourly_pattern = [
+        0.1, 0.05, 0.05, 0.05, 0.05, 0.1,
+        0.2, 0.3, 0.6, 0.8, 1.0, 1.2,
+        1.5, 1.0, 0.8, 0.9, 1.1, 1.5,
+        1.2, 1.0, 0.8, 0.5, 0.3, 0.2
     ]
+
+    # Generate request times based on diurnal pattern
+    request_times = []
+    for hour in range(24):
+        # Calculate the number of requests for this hour
+        hour_rate = int(
+            avg_rate * hourly_pattern[hour] * 3600)  # 3600 seconds in an hour
+        hour_start = day + datetime.timedelta(hours=hour)
+
+        # Generate timestamps within the hour
+        hour_times = [
+            hour_start + datetime.timedelta(seconds=int(second))
+            for second in np.random.randint(0, 3600, hour_rate)
+        ]
+        request_times.extend(hour_times)
+
+    # Sort all request times to keep them in order
     request_times.sort()
+
+    # Total requests based on generated timestamps
+    total_requests = len(request_times)
 
     # Generate request durations using a normal distribution within min, max, and avg constraints
     request_durations = np.clip(
