@@ -2,6 +2,7 @@ apiVersion: 1
 
 datasources:
   - name: Hello
+    uid: "N47hAnK1m841l"
     type: postgres
     url: database
     database: hello_postgres

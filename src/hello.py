@@ -9,6 +9,7 @@ from src.data_generator import generate_nginx_log_data
 LOGGER: hello_logger.LOGGER = hello_logger.LOGGER
 DATABASE: hello_database.HiPGDatabase
 
+
 def connect_to_db():
     global DATABASE
     LOGGER.info("Connecting to Database.")
@@ -36,11 +37,13 @@ def connect_to_db():
         LOGGER.error("Export failed.")
         exit(42)
 
+
 def create_data():
     LOGGER.info("Generating data.")
     frame = generate_nginx_log_data()
 
     return json.loads(frame.to_json(orient="records"))
+
 
 def convert_tuples(requests):
     result = []
@@ -58,6 +61,7 @@ def convert_tuples(requests):
         )
 
     return result
+
 
 if __name__ == "__main__":
     start = datetime.datetime.now()
